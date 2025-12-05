@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="forgotPasswordText" type="id" />
+    <item name="signUpPrompt" type="id" />
+    <item name="contact1EditText" type="id" />
+    <item name="contact2EditText" type="id" />
+    <item name="saveButton" type="id" />
+    <item name="ivQrCode" type="id" />
+    <item name="btnCancel" type="id" />
+    <item name="btnNext" type="id" />
+    <item name="ivStep1" type="id" />
+    <item name="ivStep2" type="id" />
+    <item name="ivStep4" type="id" />
+    <item name="ivStep3" type="id" />
+    <item name="pbStep1" type="id" />
+    <item name="pbStep2" type="id" />
+    <item name="pbStep3" type="id" />
+    <item name="pbStep4" type="id" />
+    <item name="tvStep1" type="id" />
+    <item name="tvStep2" type="id" />
+    <item name="tvStep3" type="id" />
+    <item name="tvStep4" type="id" />
+</resources>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.first">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="My Working App"
+        android:theme="@style/Theme.First">
+
+        <!-- Main Screen -->
+        <activity
+            android:name=".HealthScoreActivity"
+            android:exported="false"
+            android:theme="@style/Theme.First" />
+
+        <activity
+            android:name=".SmartWatchConnectActivity"
+            android:exported="false"
+            android:theme="@style/Theme.First" />
+
+        <activity
+            android:name=".EmergencySettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".BillingReceiptActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".BillProductsAdapter"
+            android:exported="false" />
+
+        <!-- Apple Watch Activities -->
+        <activity
+            android:name=".SimplePairingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.First" />
+
+        <activity
+            android:name=".AppleWatchPairingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.First" />
+
+        <activity
+            android:name=".SimpleSuccessActivity"
+            android:exported="false"
+            android:theme="@style/Theme.First" />
+
+        <!-- STARTUP SCREEN -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>
