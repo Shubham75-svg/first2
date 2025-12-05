@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/background_gradient.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/circle_bg.xml" value="0.1895" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/emergency_icon.xml" value="0.1185" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_add.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_arrow_back.xml" value="0.1895" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_arrow_forward.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_clear.xml" value="0.1355" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_contacts.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_health.xml" value="0.199" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_home.xml" value="0.107" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_logout.xml" value="0.107" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_message.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_pdf.xml" value="0.1355" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_preview.xml" value="0.1355" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_privacy.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_profile.xml" value="0.107" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_qr_code.xml" value="0.19" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_receipt_white.xml" value="0.1355" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_remove.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_settings.xml" value="0.132" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_shopping_cart.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_test.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/ic_watch.xml" value="0.1085" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/panic_button_gradient.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/rounded_corner_bg.xml" value="0.1355" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/drawable/total_amount_bg.xml" value="0.1355" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/activity_add_product.xml" value="0.128" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/activity_billing_receipt.xml" value="0.264" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/activity_emergency_settings.xml" value="0.17447916666666666" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/activity_generate_bill.xml" value="0.264" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/activity_profile_settings.xml" value="0.2" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/activity_view_products.xml" value="0.2" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/apple_watch_qr.xml" value="0.264" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/health_score_dashboard.xml" value="0.264" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/ic_watch.xml" value="0.1852355072463768" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/item_bill_product.xml" value="0.176" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/menu_popup_layout.xml" value="0.16" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/simple_pairing.xml" value="0.18125" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/simple_success.xml" value="0.1" />
+        <entry key="..\:/MinGW/first2/app/src/main/res/layout/smart_watch_connection.xml" value="0.264" />
+      </map>
+    </option>
+  </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17_PREVIEW" project-jdk-name="jbr-21" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
