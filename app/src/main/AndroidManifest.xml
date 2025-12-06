@@ -2,13 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.first">
 
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!-- For Android 13+ -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -16,16 +19,14 @@
         android:label="My Working App"
         android:theme="@style/Theme.First">
 
-        <!-- Main Screen -->
+        <!-- Activities -->
         <activity
             android:name=".HealthScoreActivity"
-            android:exported="false"
-            android:theme="@style/Theme.First" />
+            android:exported="false" />
 
         <activity
             android:name=".SmartWatchConnectActivity"
-            android:exported="false"
-            android:theme="@style/Theme.First" />
+            android:exported="false" />
 
         <activity
             android:name=".EmergencySettingsActivity"
@@ -39,23 +40,24 @@
             android:name=".BillProductsAdapter"
             android:exported="false" />
 
-        <!-- Apple Watch Activities -->
         <activity
             android:name=".SimplePairingActivity"
-            android:exported="false"
-            android:theme="@style/Theme.First" />
+            android:exported="false" />
 
         <activity
             android:name=".AppleWatchPairingActivity"
-            android:exported="false"
-            android:theme="@style/Theme.First" />
+            android:exported="false" />
 
         <activity
             android:name=".SimpleSuccessActivity"
-            android:exported="false"
-            android:theme="@style/Theme.First" />
+            android:exported="false" />
 
-        <!-- STARTUP SCREEN -->
+        <!-- Register activity -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <!-- FIRST SCREEN -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">

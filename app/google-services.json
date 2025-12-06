@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "229053409698",
+    "project_id": "med-alert-58e99",
+    "storage_bucket": "med-alert-58e99.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:229053409698:android:d70951cb42f80f117ceafb",
+        "android_client_info": {
+          "package_name": "com.example.first"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsaUKp3_N8QLYPASBXWRfP3zbLuqd2nlQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

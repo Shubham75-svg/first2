@@ -1,14 +1,21 @@
 package com.example.first;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -16,13 +23,17 @@ public class LoginActivity extends AppCompatActivity {
     private MaterialButton loginButton;
     private TextView forgotPasswordText, signUpText, signUpPrompt;
 
+    private FirebaseAuth firebaseAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // Matches your XML
+        setContentView(R.layout.activity_main);
 
         initializeViews();
         setupClickListeners();
+
+        firebaseAuth = FirebaseAuth.getInstance();
 
         Toast.makeText(this, "Welcome to Smart Billing System", Toast.LENGTH_SHORT).show();
     }
@@ -37,40 +48,30 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                attemptLogin();
-            }
-        });
+        loginButton.setOnClickListener(v -> attemptLogin());
 
-        forgotPasswordText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(LoginActivity.this, "Password reset feature coming soon!", Toast.LENGTH_SHORT).show();
-            }
-        });
+        forgotPasswordText.setOnClickListener(v ->
+                Toast.makeText(LoginActivity.this, "Password reset coming soon!", Toast.LENGTH_SHORT).show()
+        );
 
-        signUpText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(LoginActivity.this, "Navigate to Sign Up page", Toast.LENGTH_SHORT).show();
-            }
+        signUpText.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(intent);
         });
     }
 
     private void attemptLogin() {
-        String username = usernameEditText.getText().toString().trim();
+        String email = usernameEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
-        if (TextUtils.isEmpty(username)) {
-            usernameEditText.setError("Please enter username or email");
+        if (TextUtils.isEmpty(email)) {
+            usernameEditText.setError("Enter Email");
             usernameEditText.requestFocus();
             return;
         }
 
         if (TextUtils.isEmpty(password)) {
-            passwordEditText.setError("Please enter password");
+            passwordEditText.setError("Enter Password");
             passwordEditText.requestFocus();
             return;
         }
@@ -81,25 +82,26 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        if (isValidCredentials(username, password)) {
-            Toast.makeText(this, "Login successful! Welcome Dr. Peshant Teake", Toast.LENGTH_SHORT).show();
-            navigateToBillingReceipt();
-        } else {
-            Toast.makeText(this, "Invalid credentials. Please try again.", Toast.LENGTH_SHORT).show();
-        }
-    }
+        // Firebase login
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = firebaseAuth.getCurrentUser();
+                        Toast.makeText(LoginActivity.this,
+                                "Login Success! Welcome " + user.getEmail(),
+                                Toast.LENGTH_SHORT).show();
 
-    private boolean isValidCredentials(String username, String password) {
-        // Demo credentials
-        String demoUsername = "doctor";
-        String demoPassword = "password123";
-        return (username.equals(demoUsername) && password.equals(demoPassword)) ||
-                (username.contains("@") && password.length() >= 6);
+                        navigateToBillingReceipt();
+                    } else {
+                        Toast.makeText(LoginActivity.this,
+                                "Login Failed: " + task.getException().getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private void navigateToBillingReceipt() {
         Intent intent = new Intent(LoginActivity.this, BillingReceiptActivity.class);
-        intent.putExtra("username", usernameEditText.getText().toString().trim());
         startActivity(intent);
         finish();
     }
