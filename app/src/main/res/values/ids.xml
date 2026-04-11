@@ -20,4 +20,5 @@
     <item name="tvStep2" type="id" />
     <item name="tvStep3" type="id" />
     <item name="tvStep4" type="id" />
+    <item name="appTitle" type="id" />
 </resources>

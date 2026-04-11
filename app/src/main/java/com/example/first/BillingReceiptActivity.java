@@ -8,12 +8,12 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
+import android.os.Looper;
 import android.telephony.SmsManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,6 +24,12 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
@@ -32,24 +38,26 @@ public class BillingReceiptActivity extends AppCompatActivity {
     // UI Components
     private MaterialButton panicButton;
     private MaterialCardView panicButtonCard;
-    private MaterialCardView healthScoreCard; // Added Health Score Card
+    private MaterialCardView healthScoreCard;
     private ImageView menuIcon;
     private ImageView panicButtonImage;
     private TextView appTitle;
 
     // Emergency features
     private MediaPlayer alarmSound;
-    private Vibrator vibrator;
     private SmsManager smsManager;
+
+    // Location services
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationCallback locationCallback;
+    private Location currentLocation;
+    private boolean isGettingLocation = false;
 
     // Permissions
     private static final int PERMISSION_REQUEST_CODE = 100;
 
-    // Emergency contacts (replace with actual family member numbers)
-    private final String[] FAMILY_CONTACTS = {
-            "9356981969", // Replace with actual family contact 1
-            "9356981969"  // Replace with actual family contact 2
-    };
+    // Emergency contact number
+    private final String EMERGENCY_CONTACT = "9356981969";
 
     // Current user
     private String currentUsername = "User";
@@ -69,6 +77,7 @@ public class BillingReceiptActivity extends AppCompatActivity {
         initializeViews();
         setupClickListeners();
         initializeEmergencyFeatures();
+        initializeLocationServices();
         checkPermissions();
 
         // Welcome user
@@ -78,17 +87,15 @@ public class BillingReceiptActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        // Initialize UI components
         panicButton = findViewById(R.id.panicButton);
         panicButtonCard = findViewById(R.id.panicButtonCard);
-        healthScoreCard = findViewById(R.id.healthScoreCard); // Initialize Health Score Card
+        healthScoreCard = findViewById(R.id.healthScoreCard);
         menuIcon = findViewById(R.id.menuIcon);
         panicButtonImage = findViewById(R.id.panicButtonImage);
         appTitle = findViewById(R.id.appTitle);
     }
 
     private void setupClickListeners() {
-        // Panic Button Click Listener
         panicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,7 +103,6 @@ public class BillingReceiptActivity extends AppCompatActivity {
             }
         });
 
-        // Panic Card Click Listener (for larger click area)
         panicButtonCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,7 +110,6 @@ public class BillingReceiptActivity extends AppCompatActivity {
             }
         });
 
-        // Health Score Card Click Listener - NEW
         healthScoreCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,7 +117,6 @@ public class BillingReceiptActivity extends AppCompatActivity {
             }
         });
 
-        // Menu Icon Click Listener - Show dropdown menu
         menuIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,22 +125,17 @@ public class BillingReceiptActivity extends AppCompatActivity {
         });
     }
 
-    // NEW METHOD: Open Health Score Dashboard
     private void openHealthScoreDashboard() {
         Intent healthIntent = new Intent(BillingReceiptActivity.this, HealthScoreActivity.class);
         healthIntent.putExtra("username", currentUsername);
         startActivity(healthIntent);
-
-        // Optional: Add animation
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     private void showMenuPopup(View anchorView) {
-        // Inflate the menu layout
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View menuView = inflater.inflate(R.layout.menu_popup_layout, null);
 
-        // Create the popup window
         PopupWindow popupWindow = new PopupWindow(
                 menuView,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -144,11 +143,9 @@ public class BillingReceiptActivity extends AppCompatActivity {
                 true
         );
 
-        // Set background and elevation
         popupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_gradient));
         popupWindow.setElevation(20f);
 
-        // Initialize menu items
         TextView profileName = menuView.findViewById(R.id.profileName);
         LinearLayout profileItem = menuView.findViewById(R.id.profileItem);
         LinearLayout settingsItem = menuView.findViewById(R.id.settingsItem);
@@ -156,10 +153,8 @@ public class BillingReceiptActivity extends AppCompatActivity {
         LinearLayout homeItem = menuView.findViewById(R.id.homeItem);
         LinearLayout logoutItem = menuView.findViewById(R.id.logoutItem);
 
-        // Set profile name
         profileName.setText(currentUsername);
 
-        // Set click listeners for menu items
         profileItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -200,34 +195,20 @@ public class BillingReceiptActivity extends AppCompatActivity {
             }
         });
 
-        // Show the popup window
         popupWindow.showAsDropDown(anchorView, 0, 0, Gravity.START);
     }
 
     private void showProfile() {
-        // Show user profile
         Toast.makeText(this, "Profile: " + currentUsername, Toast.LENGTH_SHORT).show();
-
-        // You can implement a profile activity here
-        // Intent profileIntent = new Intent(this, ProfileActivity.class);
-        // startActivity(profileIntent);
     }
 
     private void openSettings() {
-        // Open emergency settings
         Intent settingsIntent = new Intent(this, EmergencySettingsActivity.class);
         startActivity(settingsIntent);
     }
 
     private void showPrivacyPolicy() {
-        // Show privacy policy
         Toast.makeText(this, "Privacy Policy", Toast.LENGTH_SHORT).show();
-
-        // You can open a web view or another activity for privacy policy
-        // Intent privacyIntent = new Intent(this, PrivacyPolicyActivity.class);
-        // startActivity(privacyIntent);
-
-        // Or open in browser
         try {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://yourapp.com/privacy"));
             startActivity(browserIntent);
@@ -237,51 +218,56 @@ public class BillingReceiptActivity extends AppCompatActivity {
     }
 
     private void goToHome() {
-        // Go to home/main screen
         Toast.makeText(this, "Already on home screen", Toast.LENGTH_SHORT).show();
-        // If you have multiple activities, you can navigate to main home
-        // Intent homeIntent = new Intent(this, MainActivity.class);
-        // startActivity(homeIntent);
-        // finish();
     }
 
     private void logout() {
-        // Logout user and go back to login
         Toast.makeText(this, "Logging out...", Toast.LENGTH_SHORT).show();
 
-        // Clear any user data if needed
         SharedPreferences preferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
         editor.apply();
 
-        // Go back to login activity
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
         finish();
     }
 
-    // Rest of your existing emergency methods remain the same...
     private void initializeEmergencyFeatures() {
-        // Initialize SMS Manager
         smsManager = SmsManager.getDefault();
 
-        // Initialize alarm sound - use system default notification sound
         try {
             alarmSound = MediaPlayer.create(this, android.provider.Settings.System.DEFAULT_NOTIFICATION_URI);
         } catch (Exception e) {
-            // Fallback: create a basic media player
             alarmSound = new MediaPlayer();
         }
+    }
 
-        // Initialize vibrator
-        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+    private void initializeLocationServices() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    currentLocation = location;
+                    if (isGettingLocation) {
+                        isGettingLocation = false;
+                        sendEmergencySMSWithLocation();
+                        stopLocationUpdates();
+                    }
+                }
+            }
+        };
     }
 
     private void checkPermissions() {
         String[] requiredPermissions = {
                 Manifest.permission.SEND_SMS,
-                Manifest.permission.VIBRATE,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
         };
@@ -324,14 +310,11 @@ public class BillingReceiptActivity extends AppCompatActivity {
         flashScreen();
         animateButtonPress();
 
-        // Sound alarm
+        // Play alarm sound
         playAlarmSound();
 
-        // Vibrate phone
-        vibratePhone();
-
-        // Send emergency SMS to family members
-        sendEmergencySMS();
+        // Get live location and send SMS
+        getLiveLocationAndSendSMS();
 
         // Open nearby hospitals in Google Maps
         openNearbyHospitals();
@@ -340,8 +323,127 @@ public class BillingReceiptActivity extends AppCompatActivity {
         showEmergencyActivated();
     }
 
+    private void getLiveLocationAndSendSMS() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Location permission required to send live location", Toast.LENGTH_SHORT).show();
+            sendEmergencySMSWithoutLocation();
+            return;
+        }
+
+        isGettingLocation = true;
+        Toast.makeText(this, "Getting your live location...", Toast.LENGTH_SHORT).show();
+
+        LocationRequest locationRequest = new LocationRequest.Builder(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                5000
+        )
+                .setWaitForAccurateLocation(true)
+                .setMinUpdateIntervalMillis(2000)
+                .setMaxUpdateDelayMillis(10000)
+                .build();
+
+        fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+        );
+
+        // Timeout after 10 seconds
+        panicButton.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (isGettingLocation) {
+                    isGettingLocation = false;
+                    stopLocationUpdates();
+                    sendEmergencySMSWithoutLocation();
+                    Toast.makeText(BillingReceiptActivity.this,
+                            "Could not get live location. Sending emergency alert without location.",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        }, 10000);
+    }
+
+    private void stopLocationUpdates() {
+        if (fusedLocationClient != null && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
+    }
+
+    private void sendEmergencySMSWithLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            String mapsUrl = "";
+            String coordinates = "";
+
+            if (currentLocation != null) {
+                double latitude = currentLocation.getLatitude();
+                double longitude = currentLocation.getLongitude();
+                coordinates = latitude + "," + longitude;
+                mapsUrl = "http://maps.google.com/?q=" + coordinates;
+            }
+
+            String emergencyMessage = "EMERGENCY! Please help. My location: " + mapsUrl;
+
+            // Also send a second message with just coordinates
+            String coordinatesMessage = "EMERGENCY! My coordinates: " + coordinates;
+
+            try {
+                // Send SMS to the emergency contact number
+                smsManager.sendTextMessage(EMERGENCY_CONTACT, null, emergencyMessage, null, null);
+
+                // Send second message with coordinates only
+                if (!coordinates.isEmpty()) {
+                    smsManager.sendTextMessage(EMERGENCY_CONTACT, null, coordinatesMessage, null, null);
+                }
+
+                Toast.makeText(this, "Emergency SMS sent to " + EMERGENCY_CONTACT, Toast.LENGTH_LONG).show();
+
+                // Also log for debugging
+                android.util.Log.d("EmergencyAlert", "SMS sent to: " + EMERGENCY_CONTACT);
+                android.util.Log.d("EmergencyAlert", "Message: " + emergencyMessage);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to send SMS: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                android.util.Log.e("EmergencyAlert", "Error sending SMS", e);
+            }
+        } else {
+            Toast.makeText(this, "SMS permission required to send alerts", Toast.LENGTH_SHORT).show();
+            requestSMSPermission();
+        }
+    }
+
+    private void sendEmergencySMSWithoutLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            String emergencyMessage = "EMERGENCY! Please help. I need immediate assistance. Location services are unavailable. Please call me immediately!";
+
+            try {
+                smsManager.sendTextMessage(EMERGENCY_CONTACT, null, emergencyMessage, null, null);
+                Toast.makeText(this, "Emergency SMS sent to " + EMERGENCY_CONTACT, Toast.LENGTH_LONG).show();
+                android.util.Log.d("EmergencyAlert", "SMS sent to: " + EMERGENCY_CONTACT);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to send SMS: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                android.util.Log.e("EmergencyAlert", "Error sending SMS", e);
+            }
+        } else {
+            Toast.makeText(this, "SMS permission required to send alerts", Toast.LENGTH_SHORT).show();
+            requestSMSPermission();
+        }
+    }
+
+    private void requestSMSPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.SEND_SMS},
+                PERMISSION_REQUEST_CODE);
+    }
+
     private void flashScreen() {
-        // Flash screen red temporarily
         panicButtonCard.setCardBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
         panicButtonCard.postDelayed(new Runnable() {
             @Override
@@ -352,7 +454,6 @@ public class BillingReceiptActivity extends AppCompatActivity {
     }
 
     private void animateButtonPress() {
-        // Scale animation for button press feedback
         panicButton.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100)
                 .withEndAction(new Runnable() {
                     @Override
@@ -369,7 +470,6 @@ public class BillingReceiptActivity extends AppCompatActivity {
                     alarmSound.start();
                 }
 
-                // Stop alarm after 10 seconds
                 panicButton.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -385,77 +485,16 @@ public class BillingReceiptActivity extends AppCompatActivity {
         }
     }
 
-    private void vibratePhone() {
-        if (vibrator != null && vibrator.hasVibrator()) {
-            long[] vibrationPattern = {0, 1000, 500, 1000, 500, 1000};
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createWaveform(vibrationPattern, 0));
-            } else {
-                vibrator.vibrate(vibrationPattern, 0);
-            }
-
-            // Stop vibration after 10 seconds
-            panicButton.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (vibrator != null) {
-                        vibrator.cancel();
-                    }
-                }
-            }, 10000);
-        }
-    }
-
-    private void sendEmergencySMS() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
-                == PackageManager.PERMISSION_GRANTED) {
-
-            String emergencyMessage = "🚨 EMERGENCY ALERT! 🚨\n\n" +
-                    "I need immediate medical help!\n" +
-                    "Emergency alert activated from Made Alert app.\n" +
-                    "Please contact me immediately and come to my location.\n\n" +
-                    "My approximate location: " + getLastKnownLocation() + "\n" +
-                    "Time: " + java.text.DateFormat.getDateTimeInstance().format(new java.util.Date()) + "\n\n" +
-                    "Sent via Made Alert Emergency System";
-
-            boolean smsSent = false;
-            for (String contact : FAMILY_CONTACTS) {
-                try {
-                    if (!contact.trim().isEmpty() && contact.length() > 5) {
-                        smsManager.sendTextMessage(contact, null, emergencyMessage, null, null);
-                        smsSent = true;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (smsSent) {
-                Toast.makeText(this, "Emergency SMS sent to family members", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "No valid family contacts configured", Toast.LENGTH_LONG).show();
-            }
-        } else {
-            Toast.makeText(this, "SMS permission required to send alerts", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void openNearbyHospitals() {
         try {
-            // Create URI for nearby hospitals search in Google Maps
             Uri gmmIntentUri = Uri.parse("geo:0,0?q=hospitals");
-
-            // Create intent to open Google Maps
             Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
             mapIntent.setPackage("com.google.android.apps.maps");
 
-            // Check if Google Maps is installed
             if (mapIntent.resolveActivity(getPackageManager()) != null) {
                 startActivity(mapIntent);
                 Toast.makeText(this, "Opening nearby hospitals in Google Maps", Toast.LENGTH_SHORT).show();
             } else {
-                // Fallback: open in browser
                 Uri webIntentUri = Uri.parse("https://www.google.com/maps/search/hospitals");
                 Intent webIntent = new Intent(Intent.ACTION_VIEW, webIntentUri);
                 startActivity(webIntent);
@@ -467,31 +506,22 @@ public class BillingReceiptActivity extends AppCompatActivity {
         }
     }
 
-    private String getLastKnownLocation() {
-        return "Location services activated. Please check GPS coordinates in maps.";
-    }
-
     private void showEmergencyActivated() {
-        Toast.makeText(this, "🚨 EMERGENCY ALERT ACTIVATED! 🚨\nHospitals map opened!\nFamily notified!", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "🚨 EMERGENCY ALERT ACTIVATED! 🚨\nLive location sent to " + EMERGENCY_CONTACT + "!\nHospitals map opened!", Toast.LENGTH_LONG).show();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Clean up resources
         if (alarmSound != null) {
             alarmSound.release();
         }
-
-        if (vibrator != null) {
-            vibrator.cancel();
-        }
+        stopLocationUpdates();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        // Stop alarm when app goes to background
         if (alarmSound != null && alarmSound.isPlaying()) {
             alarmSound.pause();
         }
